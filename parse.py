@@ -65,9 +65,9 @@ def add_miss_date(in_file, out_file):
     csv_out.writerow(day0)
 
 
-#with open(CSV_FILE_NAME_PREPARED, mode = 'w', encoding="utf-8") as prep_file, \
-#    open(ORIGIN_CSV_FILE_NAME, mode = 'r', encoding="utf-8") as origin_file:
-#    remove_duplicates(origin_file, prep_file)
+with open(CSV_FILE_NAME_PREPARED, mode = 'w', encoding="utf-8") as prep_file, \
+    open(ORIGIN_CSV_FILE_NAME, mode = 'r', encoding="utf-8") as origin_file:
+    remove_duplicates(origin_file, prep_file)
 
 
 with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
