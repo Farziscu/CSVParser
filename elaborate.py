@@ -6,6 +6,7 @@ import parse
 parse.manage_file()
 
 parse.weekly_group()
+parse.monthly_group()
 
 """step2: elaborate data"""
 """step3: display data"""

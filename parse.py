@@ -2,6 +2,7 @@
 
 import os
 import csv
+import calendar
 from datetime import datetime
 from datetime import timedelta
 
@@ -10,6 +11,8 @@ date_format = "%Y-%m-%d"
 #ORIGIN_CSV_FILE_NAME = 'Renpho_data_short.csv'
 ORIGIN_CSV_FILE_NAME = "Renpho_data.csv"
 CSV_FILE_NAME_PREPARED = 'Renpho_data_prepared.csv'
+CSV_FILE_NAME_WEEKLY = 'Renpho_data_weekly.csv'
+CSV_FILE_NAME_MONTHLY = 'Renpho_data_montly.csv'
 CSV_FILE_NAME_TMP = 'Renpho_data_tmp.csv'
 
 TOTAL_DAYS_OFF = 0
@@ -79,11 +82,11 @@ def add_lines(line_in, line_out, no_elements):
             line_out[i] += float(line_in[i])
         i += 1
 
-def calculate_average(sum_items, no_elements):
+def calculate_average(sum_items, no_elements, num_days):
     """calc average"""
     i = 1
     while i < no_elements:
-        sum_items[i] = sum_items[i] / 7
+        sum_items[i] = sum_items[i] / num_days
         sum_items[i] = float("{:.2f}".format(sum_items[i]))
         i += 1
 
@@ -91,9 +94,9 @@ def calculate_average(sum_items, no_elements):
 def weekly_group():
     """Creates file grouping weeks"""
     with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
-        open(CSV_FILE_NAME_TMP, mode = 'w+', encoding="utf-8") as tmp_file:
+        open(CSV_FILE_NAME_WEEKLY, mode = 'w+', encoding="utf-8") as out_file:
 
-        csvFile_out = csv.writer(tmp_file, lineterminator='\n')
+        csvFile_out = csv.writer(out_file, lineterminator='\n')
         csvFile_in = csv.reader(prep_file)
         header = next(csvFile_in)
         csvFile_out.writerow(header)
@@ -107,20 +110,56 @@ def weekly_group():
             if datetime.strptime(lines[0].split()[0], date_format).weekday() == 0:
                 #print(lines[0])
                 sum_lines = [0] * count_elements
-                sum_lines[0] = datetime.strptime(lines[0].split()[0], date_format)
+                sum_lines[0] = datetime.strptime(lines[0].split()[0], date_format).date()
                 week_start = 1
 
             add_lines(lines, sum_lines, count_elements)
 
             # sunday:
             if datetime.strptime(lines[0].split()[0], date_format).weekday() == 6 and week_start:
-                calculate_average(sum_lines, count_elements)
+                calculate_average(sum_lines, count_elements, 7)
                 csvFile_out.writerow(sum_lines)
+    
+    try:
+        os.rename(CSV_FILE_NAME_TMP, CSV_FILE_NAME_WEEKLY)
+    except FileExistsError:
+        print("Created file " + CSV_FILE_NAME_WEEKLY)
 
+    os.remove(CSV_FILE_NAME_TMP)
 
 
 def monthly_group():
     """Creates file grouping months"""
+    with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
+        open(CSV_FILE_NAME_MONTHLY, mode = 'w+', encoding="utf-8") as out_file:
+
+        csvFile_out = csv.writer(out_file, lineterminator='\n')
+        csvFile_in = csv.reader(prep_file)
+        header = next(csvFile_in)
+        csvFile_out.writerow(header)
+        count_elements = len(header)
+
+        sum_lines = [0.0] * count_elements #creates a list of elements
+        start = 0
+        num_days = 0
+
+        for lines in csvFile_in:
+            # look for next monday:
+            if datetime.strptime(lines[0].split()[0], date_format).day == 1:
+                sum_lines = [0] * count_elements
+                sum_lines[0] = datetime.strptime(lines[0].split()[0], date_format).date()
+                start = 1
+                year = datetime.strptime(lines[0].split()[0], date_format).year
+                month = datetime.strptime(lines[0].split()[0], date_format).month
+                num_days = calendar.monthrange(year, month)[1]
+
+            add_lines(lines, sum_lines, count_elements)
+
+            # last day of the month:
+            if datetime.strptime(lines[0].split()[0], date_format).day == num_days and start:
+                calculate_average(sum_lines, count_elements, num_days)
+                csvFile_out.writerow(sum_lines)
+
 
 def trimestral_group():
     """"""
@@ -145,8 +184,6 @@ def manage_file():
         os.rename(CSV_FILE_NAME_TMP, CSV_FILE_NAME_PREPARED)
     except FileExistsError:
         print("Created file " + CSV_FILE_NAME_PREPARED)
-
-    #os.remove(CSV_FILE_NAME_TMP)
 
     print("Total days off:")
     print(TOTAL_DAYS_OFF)
