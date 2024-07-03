@@ -71,8 +71,53 @@ def add_miss_date(in_file, out_file):
 
     csv_out.writerow(day0)
 
+def add_lines(line_in, line_out, no_elements):
+    """sum lines"""
+    i = 1
+    while i < no_elements:
+        if line_in[i] != '':
+            line_out[i] += float(line_in[i])
+        i += 1
+
+def calculate_average(sum_items, no_elements):
+    """calc average"""
+    i = 1
+    while i < no_elements:
+        sum_items[i] = sum_items[i] / 7
+        sum_items[i] = float("{:.2f}".format(sum_items[i]))
+        i += 1
+
+
 def weekly_group():
     """Creates file grouping weeks"""
+    with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
+        open(CSV_FILE_NAME_TMP, mode = 'w+', encoding="utf-8") as tmp_file:
+
+        csvFile_out = csv.writer(tmp_file, lineterminator='\n')
+        csvFile_in = csv.reader(prep_file)
+        header = next(csvFile_in)
+        csvFile_out.writerow(header)
+        count_elements = len(header)
+
+        sum_lines = [0.0] * count_elements #creates a list of elements
+        week_start = 0
+
+        for lines in csvFile_in:
+            # look for next monday:
+            if datetime.strptime(lines[0].split()[0], date_format).weekday() == 0:
+                #print(lines[0])
+                sum_lines = [0] * count_elements
+                sum_lines[0] = datetime.strptime(lines[0].split()[0], date_format)
+                week_start = 1
+
+            add_lines(lines, sum_lines, count_elements)
+
+            # sunday:
+            if datetime.strptime(lines[0].split()[0], date_format).weekday() == 6 and week_start:
+                calculate_average(sum_lines, count_elements)
+                csvFile_out.writerow(sum_lines)
+
+
 
 def monthly_group():
     """Creates file grouping months"""
@@ -93,14 +138,15 @@ def manage_file():
     with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
         open(CSV_FILE_NAME_TMP, mode = 'w+', encoding="utf-8") as tmp_file:
         add_miss_date(prep_file, tmp_file)
-        #rinominare TMP con PREPARED
+
+    os.remove(CSV_FILE_NAME_PREPARED)
 
     try:
         os.rename(CSV_FILE_NAME_TMP, CSV_FILE_NAME_PREPARED)
     except FileExistsError:
         print("Created file " + CSV_FILE_NAME_PREPARED)
 
-    os.remove(CSV_FILE_NAME_TMP)
+    #os.remove(CSV_FILE_NAME_TMP)
 
     print("Total days off:")
     print(TOTAL_DAYS_OFF)
