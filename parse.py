@@ -1,5 +1,6 @@
 """Prepare CSV file"""
 
+import os
 import csv
 from datetime import datetime
 from datetime import timedelta
@@ -24,7 +25,7 @@ def remove_duplicates(file, out_file):
 
         if date0[0] != date1[0]:
             writer.writerow(lines)
-            print(lines)
+            #print(lines)
 
         date1[0] = date0[0]
 
@@ -70,16 +71,36 @@ def add_miss_date(in_file, out_file):
 
     csv_out.writerow(day0)
 
+def weekly_group():
+    """Creates file grouping weeks"""
 
-with open(CSV_FILE_NAME_PREPARED, mode = 'w', encoding="utf-8") as prep_file, \
-    open(ORIGIN_CSV_FILE_NAME, mode = 'r', encoding="utf-8") as origin_file:
-    remove_duplicates(origin_file, prep_file)
+def monthly_group():
+    """Creates file grouping months"""
+
+def trimestral_group():
+    """"""
+
+def semestral_group():
+    """"""
+
+def manage_file():
+    """Remove duplicates and add missed days"""
+    with open(CSV_FILE_NAME_PREPARED, mode = 'w', encoding="utf-8") as prep_file, \
+        open(ORIGIN_CSV_FILE_NAME, mode = 'r', encoding="utf-8") as origin_file:
+        remove_duplicates(origin_file, prep_file)
 
 
-with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
-    open(CSV_FILE_NAME_TMP, mode = 'w+', encoding="utf-8") as tmp_file:
-    add_miss_date(prep_file, tmp_file)
-    #rinominare TMP con PREPARED
+    with open(CSV_FILE_NAME_PREPARED, mode = 'r', encoding="utf-8") as prep_file, \
+        open(CSV_FILE_NAME_TMP, mode = 'w+', encoding="utf-8") as tmp_file:
+        add_miss_date(prep_file, tmp_file)
+        #rinominare TMP con PREPARED
 
-print("Total days off:")
-print(TOTAL_DAYS_OFF)
+    try:
+        os.rename(CSV_FILE_NAME_TMP, CSV_FILE_NAME_PREPARED)
+    except FileExistsError:
+        print("Created file " + CSV_FILE_NAME_PREPARED)
+
+    os.remove(CSV_FILE_NAME_TMP)
+
+    print("Total days off:")
+    print(TOTAL_DAYS_OFF)
