@@ -119,13 +119,6 @@ def weekly_group():
             if datetime.strptime(lines[0].split()[0], date_format).weekday() == 6 and week_start:
                 calculate_average(sum_lines, count_elements, 7)
                 csvFile_out.writerow(sum_lines)
-    
-    try:
-        os.rename(CSV_FILE_NAME_TMP, CSV_FILE_NAME_WEEKLY)
-    except FileExistsError:
-        print("Created file " + CSV_FILE_NAME_WEEKLY)
-
-    os.remove(CSV_FILE_NAME_TMP)
 
 
 def monthly_group():
