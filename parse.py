@@ -42,6 +42,20 @@ def count_days_off(day0, day1):
 
     return (day1_num - day0_num).days - 1
 
+def calculate_delta(day0, day1, delta_values, days_off):
+    """calculate delta arrays"""
+    i = 1
+    while i < len(day0):
+        if day1[i] != '':
+            delta_values[i] = float(day1[i]) - float(day0[i])
+        i += 1
+
+    i = 1
+    while i < len(day0):
+        if day1[i] != '':
+            delta_values[i] = delta_values[i] / (days_off+1)
+        i += 1
+
 def add_miss_date(in_file, out_file):
     """add missed days"""
     print("adding missed days...")
@@ -54,10 +68,14 @@ def add_miss_date(in_file, out_file):
     csv_out.writerow(headerLine)    #writes header
 
     day0 = next(csv_in)
+    delta_values = day0
 
     for day1 in csv_in:   #day1 = next(csv_in)
         days_off = count_days_off(day0, day1)
         TOTAL_DAYS_OFF += days_off
+
+        if days_off != 0:
+            calculate_delta(day0, day1, delta_values, days_off)
 
         csv_out.writerow(day0)
 
@@ -67,6 +85,13 @@ def add_miss_date(in_file, out_file):
         while days_off:
             #update day0 with data + 1
             day0[0] = day0[0] + timedelta(days=1)
+
+            i = 1
+            while i < len(day0):
+                if day0[i] != '':
+                    day0[i] = str( round(delta_values[i] + float(day0[i]),2 ))
+                i += 1
+
             csv_out.writerow(day0)
             days_off -= 1
 
