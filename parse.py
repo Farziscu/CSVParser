@@ -9,7 +9,8 @@ from datetime import timedelta
 date_format = "%Y-%m-%d"
 
 #ORIGIN_CSV_FILE_NAME = 'Renpho_data_short.csv'
-ORIGIN_CSV_FILE_NAME = "Renpho_data.csv"
+#ORIGIN_CSV_FILE_NAME = "Renpho_data.csv"
+ORIGIN_CSV_FILE_NAME = "Renpho_data_OTTOBRE2024.csv"
 CSV_FILE_NAME_PREPARED = 'Renpho_data_prepared.csv'
 CSV_FILE_NAME_WEEKLY = 'Renpho_data_weekly.csv'
 CSV_FILE_NAME_MONTHLY = 'Renpho_data_montly.csv'

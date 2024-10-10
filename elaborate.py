@@ -1,5 +1,7 @@
 """Parse CSV file for weight info"""
 
+#Per lanciare il tool usare: py elaborate.py
+
 import parse
 import views
 

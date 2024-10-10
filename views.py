@@ -34,7 +34,7 @@ def main_views():
     axes = fig.add_subplot(111)
 
     axes2 = axes.twinx()
-    axes2.set_ylim(54, 55)
+    axes2.set_ylim(54, 56)
 
     lns1 = axes.plot(x, y0, color = 'g', linestyle='dashed', marker = '*' , label = y0_label)
     lns2 = axes2.plot(x, y1, color = 'b', linestyle='dashed', marker = 'o', label = y1_label)
